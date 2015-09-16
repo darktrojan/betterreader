@@ -1,10 +1,57 @@
-/* globals addEventListener, addMessageListener, removeEventListener, removeMessageListener, content */
+/* globals addEventListener, addMessageListener, removeEventListener, removeMessageListener, sendAsyncMessage, content */
 
-addEventListener("AboutReaderContentLoaded", listener, false, true);
+const { classes: Cc, interfaces: Ci } = Components;
 
-addMessageListener("BetterReader:disable", disableListener);
+let listener = {
+	_events: [
+		"AboutReaderContentLoaded"
+	],
+	_messages: [
+		"BetterReader:disable",
+		"BetterReader:prefs"
+	],
+	init: function() {
+		for (let e of this._events) {
+			addEventListener(e, this, false, true);
+		}
+		for (let m of this._messages) {
+			addMessageListener(m, this);
+		}
+	},
+	destroy: function() {
+		for (let e of this._events) {
+			removeEventListener(e, this, false, true);
+		}
+		for (let m of this._messages) {
+			removeMessageListener(m, this);
+		}
+	},
+	handleEvent: function(event) {
+		switch (event.type) {
+		case "AboutReaderContentLoaded":
+			loaded();
+			break;
+		}
+	},
+	receiveMessage: function(message) {
+		switch (message.name) {
+		case "BetterReader:disable":
+			this.destroy();
+			break;
+		case "BetterReader:prefs":
+			if ("font" in message.data) {
+				setFont(message.data.font, false);
+			}
+			if ("width" in message.data) {
+				setWidth(message.data.width, false);
+			}
+			break;
+		}
+	}
+};
+listener.init();
 
-function listener() {
+function loaded() {
 	if (!content || !isAboutReader()) {
 		return;
 	}
@@ -22,8 +69,7 @@ function listener() {
 	div.appendChild(style);
 
 	let select = content.document.createElement("select");
-	let fontEnumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
-		.createInstance(Components.interfaces.nsIFontEnumerator);
+	let fontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].createInstance(Ci.nsIFontEnumerator);
 	for (let f of fontEnumerator.EnumerateAllFonts({})) {
 		let option = content.document.createElement("option");
 		option.textContent = f;
@@ -31,8 +77,7 @@ function listener() {
 	}
 	select.onchange = function() {
 		if (dropdown.classList.contains("open")) {
-			let container = content.document.getElementById("container");
-			container.style.fontFamily = this.value;
+			setFont(this.value);
 		}
 	};
 	div.appendChild(select);
@@ -64,11 +109,8 @@ function listener() {
 
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement("hr"), before);
-}
 
-function disableListener() {
-	removeEventListener("AboutReaderContentLoaded", listener, false, true);
-	removeMessageListener("BetterReader:disable", disableListener);
+	sendAsyncMessage("BetterReader:getPrefs");
 }
 
 function isAboutReader() {
@@ -76,6 +118,15 @@ function isAboutReader() {
     return false;
   }
   return content.document.documentURI.startsWith("about:reader");
+}
+
+function setFont(font, setPref = true) {
+	if (!isAboutReader) { return; }
+	if (setPref) {
+		sendAsyncMessage("BetterReader:setPref", { key: "font", value: font });
+	}
+	let container = content.document.getElementById("container");
+	container.style.fontFamily = font;
 }
 
 function changeWidth(change) {
@@ -89,5 +140,14 @@ function changeWidth(change) {
 		return;
 	}
 
-	container.style.maxWidth = newWidth + "em";
+	setWidth(newWidth);
+}
+
+function setWidth(width, setPref = true) {
+	if (!isAboutReader) { return; }
+	if (setPref) {
+		sendAsyncMessage("BetterReader:setPref", { key: "width", value: width });
+	}
+	let container = content.document.getElementById("container");
+	container.style.maxWidth = width + "em";
 }
