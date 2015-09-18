@@ -1,6 +1,6 @@
 /* globals addEventListener, addMessageListener, removeEventListener, removeMessageListener, sendAsyncMessage, content */
 
-const { classes: Cc, interfaces: Ci } = Components;
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 let listener = {
 	_events: [
@@ -60,6 +60,9 @@ function loaded() {
 	let popup = content.document.getElementById("reader-popup");
 	let before = content.document.getElementById("font-size-buttons");
 
+	let fontTypeButtons = content.document.getElementById("font-type-buttons");
+	fontTypeButtons.style.display = fontTypeButtons.nextElementSibling.style.display = "none";
+
 	let div = content.document.createElement("div");
 	div.id = "font-choice";
 
@@ -69,6 +72,7 @@ function loaded() {
 	div.appendChild(style);
 
 	let select = content.document.createElement("select");
+	select.id = "font-choice-select";
 	let fontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].createInstance(Ci.nsIFontEnumerator);
 	for (let f of fontEnumerator.EnumerateAllFonts({})) {
 		let option = content.document.createElement("option");
@@ -114,16 +118,28 @@ function loaded() {
 }
 
 function isAboutReader() {
-  if (!content) {
-    return false;
-  }
-  return content.document.documentURI.startsWith("about:reader");
+	if (!content) {
+		return false;
+	}
+	return content.document.documentURI.startsWith("about:reader");
 }
 
 function setFont(font, setPref = true) {
-	if (!isAboutReader) { return; }
+	if (!isAboutReader()) { return; }
 	if (setPref) {
 		sendAsyncMessage("BetterReader:setPref", { key: "font", value: font });
+	} else {
+		// try {
+		// 	let r = content.document.createRange();
+		// 	r.selectNodeContents(content.document.querySelector("h1, #reader-message"));
+		// 	let fonts = Cc["@mozilla.org/inspector/dom-utils;1"].getService(Ci.inIDOMUtils).getUsedFontFaces(r);
+		// 	if (fonts.length) {
+		// 		select.value = fonts.item(0).CSSFamilyName;
+		// 	}
+		// } catch(ex) {
+		// 	Cu.reportError(ex);
+		// }
+		content.document.getElementById("font-choice-select").value = font;
 	}
 	let container = content.document.getElementById("container");
 	container.style.fontFamily = font;
@@ -144,7 +160,7 @@ function changeWidth(change) {
 }
 
 function setWidth(width, setPref = true) {
-	if (!isAboutReader) { return; }
+	if (!isAboutReader()) { return; }
 	if (setPref) {
 		sendAsyncMessage("BetterReader:setPref", { key: "width", value: width });
 	}
