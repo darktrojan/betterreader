@@ -7,7 +7,7 @@
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Better Reader</em:name>
-		<em:description></em:description>
+		<em:description>Improves Firefox's Reader Mode</em:description>
 		<em:creator>Geoff Lankow</em:creator>
 
 		<em:targetApplication>
