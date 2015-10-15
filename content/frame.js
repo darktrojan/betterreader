@@ -74,7 +74,10 @@ function loaded() {
 	let select = content.document.createElement("select");
 	select.id = "font-choice-select";
 	let fontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].createInstance(Ci.nsIFontEnumerator);
-	for (let f of fontEnumerator.EnumerateAllFonts({})) {
+	let fonts = [for (f of fontEnumerator.EnumerateAllFonts({})) f].sort(function(a, b) {
+		return a.toLowerCase() < b.toLowerCase() ? -1 : 1;
+	});
+	for (let f of fonts) {
 		let option = content.document.createElement("option");
 		option.textContent = f;
 		select.appendChild(option);
