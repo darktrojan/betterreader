@@ -201,6 +201,7 @@ function setFont(font, setPref = true) {
 	}
 	let container = content.document.getElementById('container');
 	container.style.fontFamily = font;
+	content.document.getElementById('font-choice-select').style.fontFamily = font;
 }
 
 function changeWidth(change) {
