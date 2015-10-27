@@ -154,6 +154,7 @@ function loaded() {
 
 	let arrow = dropdown.querySelector('.dropdown-arrow');
 	let arrowSVG = createSVG('M 16 1.0019531 L 5 12 L 16 23 L 16 21.585938 L 6.4160156 12 L 16 2.4160156 L 16 1.0019531 z');
+	arrowSVG.querySelector('path').classList.add('border');
 	let arrowFill = content.document.createElementNS(SVG_NS, 'path');
 	arrowFill.setAttribute('d', 'M 16,21.585938 6.4160156,12 16,2.4160156 Z');
 	arrowFill.classList.add('fill');

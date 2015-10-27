@@ -1,3 +1,8 @@
+#reader-toolbar {
+	--foreground: #0c0;
+	--borders: #090;
+	--background: #333;
+}
 #close-button,
 .style-button,
 #font-size-minus,
@@ -6,7 +11,7 @@
 	background-image: none;
 }
 #font-choice {
-	border-bottom: 1px solid #B5B5B5;
+	border-bottom: 1px solid var(--borders);
 	text-align: center;
 	padding: 0.5em 0;
 }
@@ -16,8 +21,8 @@
 	background-color: transparent;
 	border-top: none;
 	border-right: none;
-	border-bottom: 1px solid #B5B5B5;
-	border-left: 1px solid #B5B5B5;
+	border-bottom: 1px solid var(--borders);
+	border-left: 1px solid var(--borders);
 }
 .narrower-button, .wider-button {
 	background-color: transparent;
@@ -29,15 +34,18 @@
 #reader-toolbar,
 #reader-toolbar button,
 .dropdown-popup {
-	/*background-color: #333;*/
-	/*border-color: #0c0;*/
-}
-svg path.fill {
-	/*fill: #333;*/
+	background-color: var(--background);
+	border-color: var(--borders);
 }
 svg {
 	vertical-align: middle;
 }
 svg path {
-	/*fill: #0c0;*/
+	fill: var(--foreground);
+}
+svg path.border {
+	fill: var(--borders);
+}
+svg path.fill {
+	fill: var(--background);
 }
