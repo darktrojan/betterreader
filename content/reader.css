@@ -1,7 +1,8 @@
 #reader-toolbar {
-	--foreground: #0c0;
-	--borders: #090;
-	--background: #333;
+	--foreground: #808080;
+	--borders: #b5b5b5;
+	--background: #fbfbfb;
+	--button-hover: #ebebeb;
 }
 #close-button,
 .style-button,
@@ -9,6 +10,12 @@
 #font-size-plus,
 .dropdown-arrow {
 	background-image: none;
+}
+#close-button:hover {
+	background-color: #d94141;
+}
+#close-button:hover path {
+	fill: #ffffff;
 }
 #font-choice {
 	border-bottom: 1px solid var(--borders);
@@ -44,6 +51,10 @@
 .dropdown-popup {
 	background-color: var(--background);
 	border-color: var(--borders);
+}
+#reader-toolbar select:hover,
+#reader-toolbar button:not(#close-button):hover {
+	background-color: var(--button-hover);
 }
 svg {
 	vertical-align: middle;

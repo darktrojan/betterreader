@@ -95,8 +95,6 @@ function loaded() {
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
 
-	before = content.document.getElementById('color-scheme-buttons');
-
 	div = content.document.createElement('div');
 	div.id = 'container-width-buttons';
 
@@ -135,7 +133,10 @@ function loaded() {
 
 	button = content.document.createElement('button');
 	button.className = 'narrower-button';
-	button.appendChild(createSVG('M 10.5,12 0,5.9378222 V 18.062178 Z m 3,0 L 24,5.937823 v 12.124355 z', 32));
+	button.appendChild(createSVG(
+		'M 9 4 L 9 11.134766 L 0 5.9375 L 0 18.0625 L 9 12.865234 L 9 20 L 11 20 L 11 4 L 9 4 z ' +
+		'M 13 4 L 13 20 L 15 20 L 15 12.865234 L 24 18.0625 L 24 5.9375 L 15 11.134766 L 15 4 L 13 4 z', 32
+	));
 	button.onclick = function() {
 		changeWidth(-5);
 	};
@@ -143,17 +144,26 @@ function loaded() {
 
 	button = content.document.createElement('button');
 	button.className = 'wider-button';
-	button.appendChild(createSVG('M 0,12 10.5,5.9378227 V 18.062178 Z M 24,12 13.5,5.9378222 V 18.062178 Z', 32));
+	button.appendChild(createSVG(
+		'M 0 4 L 0 20 L 2 20 L 2 12.865234 L 11 18.0625 L 11 5.9375 L 2 11.134766 L 2 4 L 0 4 z ' +
+		'M 22 4 L 22 11.134766 L 13 5.9375 L 13 18.0625 L 22 12.865234 L 22 20 L 24 20 L 24 4 L 22 4 z', 32
+	));
 	button.onclick = function() {
 		changeWidth(5);
 	};
 	div.appendChild(button);
 
+	before = content.document.getElementById('color-scheme-buttons');
+
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
 
+	before.style.display = 'none';
+
 	let arrow = dropdown.querySelector('.dropdown-arrow');
-	let arrowSVG = createSVG('M 16 1.0019531 L 5 12 L 16 23 L 16 21.585938 L 6.4160156 12 L 16 2.4160156 L 16 1.0019531 z');
+	let arrowSVG = createSVG(
+		'M 16 1.0019531 L 5 12 L 16 23 L 16 21.585938 L 6.4160156 12 L 16 2.4160156 L 16 1.0019531 z'
+	);
 	arrowSVG.querySelector('path').classList.add('border');
 	let arrowFill = content.document.createElementNS(SVG_NS, 'path');
 	arrowFill.setAttribute('d', 'M 16,21.585938 6.4160156,12 16,2.4160156 Z');
