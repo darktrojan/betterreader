@@ -1,6 +1,6 @@
 /* jshint browser: false */
 /* globals Components, addEventListener, addMessageListener,
-	removeEventListener, removeMessageListener, sendAsyncMessage, content */
+	removeEventListener, removeMessageListener, sendAsyncMessage, content, -document */
 const { classes: Cc, interfaces: Ci } = Components;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -60,8 +60,16 @@ function loaded() {
 
 	let toolbar = content.document.getElementById('reader-toolbar');
 	let style = content.document.createElement('style');
+	style.id = 'betterreader-stylesheet';
 	style.setAttribute('scoped', '');
-	style.textContent = '@import url("chrome://betterreader/content/reader.css");';
+	style.textContent =
+		'@import url("chrome://betterreader/content/reader.css");' +
+		'#reader-toolbar {' +
+			'--foreground: #808080;' +
+			'--borders: #b5b5b5;' +
+			'--background: #fbfbfb;' +
+			'--button-hover: #ebebeb;' +
+		'}';
 	toolbar.insertBefore(style, toolbar.children[1]);
 
 	let dropdown = content.document.getElementById('style-dropdown');
@@ -235,4 +243,9 @@ function setWidth(width, setPref = true) {
 	}
 	let container = content.document.getElementById('container');
 	container.style.maxWidth = width + 'em';
+}
+
+function setColourVariable(name, value) {
+	let style = content.document.getElementById('betterreader-stylesheet');
+	style.sheet.cssRules[1].style.setProperty('--' + name, value);
 }
