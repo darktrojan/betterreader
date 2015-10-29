@@ -33,6 +33,12 @@
 	border-bottom: 1px solid var(--borders);
 	border-left: 1px solid var(--borders);
 }
+#container-width-buttons > button:first-child {
+  border-bottom-left-radius: 3px;
+}
+#container-width-buttons > button:last-child {
+  border-bottom-right-radius: 3px;
+}
 .narrower-button, .wider-button {
 	background-color: transparent;
 	border: 0px none;
