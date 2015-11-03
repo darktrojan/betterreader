@@ -1,8 +1,16 @@
-/* jshint browser: false */
 /* globals Components, addEventListener, addMessageListener,
-	removeEventListener, removeMessageListener, sendAsyncMessage, content, -document */
+	removeEventListener, removeMessageListener, sendAsyncMessage, content */
 const { classes: Cc, interfaces: Ci } = Components;
 const SVG_NS = 'http://www.w3.org/2000/svg';
+
+Components.utils.import('resource://gre/modules/Services.jsm');
+
+let colourVars = new Map([
+	['foreground', '#808080'],
+	['borders', '#b5b5b5'],
+	['background', '#fbfbfb'],
+	['button-hover', '#ebebeb']
+]);
 
 let listener = {
 	_events: [
@@ -46,6 +54,11 @@ let listener = {
 			}
 			if ('width' in message.data) {
 				setWidth(message.data.width, false);
+			}
+			for (let name of colourVars.keys()) {
+				if ('css.' + name in message.data) {
+					setColourVariable(name, message.data['css.' + name], false);
+				}
 			}
 			break;
 		}
@@ -166,6 +179,20 @@ function loaded() {
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
 
+	div = content.document.createElement('div');
+	for (let [name, value] of colourVars) {
+		let input = content.document.createElement('input');
+		input.type = 'color';
+		input.name = name;
+		input.value = value;
+		input.onchange = function() {
+			setColourVariable(this.name, this.value);
+		}; // jshint ignore:line
+		div.appendChild(input);
+	}
+	popup.insertBefore(div, before);
+	popup.insertBefore(content.document.createElement('hr'), before);
+
 	before.style.display = 'none';
 
 	let arrow = dropdown.querySelector('.dropdown-arrow');
@@ -245,7 +272,14 @@ function setWidth(width, setPref = true) {
 	container.style.maxWidth = width + 'em';
 }
 
-function setColourVariable(name, value) {
+function setColourVariable(name, value, setPref = true) {
+	if (!isAboutReader()) { return; }
+	if (setPref) {
+		sendAsyncMessage('BetterReader:setPref', { key: 'css.' + name, value: value });
+	} else {
+		content.document.querySelector('input[type="color"][name="' + name + '"]').value = value;
+	}
+	colourVars.set(name, value);
 	let style = content.document.getElementById('betterreader-stylesheet');
 	style.sheet.cssRules[1].style.setProperty('--' + name, value);
 }
