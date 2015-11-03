@@ -71,18 +71,17 @@ function loaded() {
 		return;
 	}
 
-	let toolbar = content.document.getElementById('reader-toolbar');
 	let style = content.document.createElement('style');
 	style.id = 'betterreader-stylesheet';
+	style.textContent = ':root {\n' +
+		[for (colour of colourVars) `\t--${colour[0]}: ${colour[1]};\n`].join('') +
+		'}\n';
+	content.document.head.appendChild(style);
+
+	let toolbar = content.document.getElementById('reader-toolbar');
+	style = content.document.createElement('style');
 	style.setAttribute('scoped', '');
-	style.textContent =
-		'@import url("chrome://betterreader/content/reader.css");' +
-		'#reader-toolbar {' +
-			'--foreground: #808080;' +
-			'--borders: #b5b5b5;' +
-			'--background: #fbfbfb;' +
-			'--button-hover: #ebebeb;' +
-		'}';
+	style.textContent = '@import url("chrome://betterreader/content/reader.css");';
 	toolbar.insertBefore(style, toolbar.children[1]);
 
 	let dropdown = content.document.getElementById('style-dropdown');
@@ -281,5 +280,5 @@ function setColourVariable(name, value, setPref = true) {
 	}
 	colourVars.set(name, value);
 	let style = content.document.getElementById('betterreader-stylesheet');
-	style.sheet.cssRules[1].style.setProperty('--' + name, value);
+	style.sheet.cssRules[0].style.setProperty('--' + name, value);
 }
