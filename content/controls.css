@@ -33,18 +33,17 @@
 	border-bottom: 1px solid var(--controls-borders);
 	border-left: 1px solid var(--controls-borders);
 }
-#container-width-buttons > button:first-child {
-  border-bottom-left-radius: 3px;
-}
-#container-width-buttons > button:last-child {
-  border-bottom-right-radius: 3px;
-}
 .narrower-button, .wider-button {
 	background-color: transparent;
 	border: 0px none;
 }
 .narrower-button {
 	border-left: none !important;
+}
+#colour-choice-buttons {
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+	padding: 0.5em;
 }
 #reader-toolbar,
 #reader-toolbar button,
@@ -55,6 +54,9 @@
 #reader-toolbar select:hover,
 #reader-toolbar button:not(#close-button):hover {
 	background-color: var(--controls-button-hover);
+}
+.dropdown-popup {
+	border-bottom-width: 1px;
 }
 svg {
 	vertical-align: middle;

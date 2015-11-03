@@ -1,10 +1,11 @@
-/* globals Components, addEventListener, addMessageListener,
+/* globals Components, Services, addEventListener, addMessageListener,
 	removeEventListener, removeMessageListener, sendAsyncMessage, content */
 const { classes: Cc, interfaces: Ci } = Components;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
+let strings = Services.strings.createBundle('chrome://betterreader/locale/strings.properties');
 let colourVars = new Map([
 	['content-background', '#333333'],
 	['content-foreground', '#eeeeee'],
@@ -187,7 +188,10 @@ function loaded() {
 	popup.insertBefore(content.document.createElement('hr'), before);
 
 	div = content.document.createElement('div');
+	div.id = 'colour-choice-buttons';
 	for (let [name, value] of colourVars) {
+		let stringName = strings.GetStringFromName('css.' + name.replace('-', '.'));
+		div.appendChild(content.document.createTextNode(stringName + ' '));
 		let input = content.document.createElement('input');
 		input.type = 'color';
 		input.name = name;
@@ -196,6 +200,7 @@ function loaded() {
 			setColourVariable(this.name, this.value);
 		}; // jshint ignore:line
 		div.appendChild(input);
+		div.appendChild(content.document.createElement('br'));
 	}
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
