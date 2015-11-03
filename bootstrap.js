@@ -47,7 +47,17 @@ messageListener = {
 		case 'BetterReader:getPrefs':
 			let prefs = Object.create(null);
 			let send = false;
-			for (let k of ['font', 'width', 'css.foreground', 'css.borders', 'css.background', 'css.button-hover']) {
+			let prefNames = [
+				'css.content.background',
+				'css.content.foreground',
+				'css.controls.background',
+				'css.controls.borders',
+				'css.controls.button-hover',
+				'css.controls.foreground',
+				'font',
+				'width'
+			];
+			for (let k of prefNames) {
 				if (Preferences.has('extensions.betterreader.' + k)) {
 					send = true;
 					prefs[k] = Preferences.get('extensions.betterreader.' + k);

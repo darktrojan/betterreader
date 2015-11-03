@@ -6,10 +6,12 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 Components.utils.import('resource://gre/modules/Services.jsm');
 
 let colourVars = new Map([
-	['foreground', '#808080'],
-	['borders', '#b5b5b5'],
-	['background', '#fbfbfb'],
-	['button-hover', '#ebebeb']
+	['content-background', '#333333'],
+	['content-foreground', '#eeeeee'],
+	['controls-background', '#fbfbfb'],
+	['controls-borders', '#b5b5b5'],
+	['controls-button-hover', '#ebebeb'],
+	['controls-foreground', '#808080']
 ]);
 
 let listener = {
@@ -56,8 +58,9 @@ let listener = {
 				setWidth(message.data.width, false);
 			}
 			for (let name of colourVars.keys()) {
-				if ('css.' + name in message.data) {
-					setColourVariable(name, message.data['css.' + name], false);
+				let prefName = name.replace('-', '.');
+				if ('css.' + prefName in message.data) {
+					setColourVariable(name, message.data['css.' + prefName], false);
 				}
 			}
 			break;
@@ -78,10 +81,15 @@ function loaded() {
 		'}\n';
 	content.document.head.appendChild(style);
 
+	style = content.document.createElement('style');
+	style.setAttribute('scoped', '');
+	style.textContent = '@import url("chrome://betterreader/content/content.css");';
+	content.document.body.insertBefore(style, content.document.body.firstChild);
+
 	let toolbar = content.document.getElementById('reader-toolbar');
 	style = content.document.createElement('style');
 	style.setAttribute('scoped', '');
-	style.textContent = '@import url("chrome://betterreader/content/reader.css");';
+	style.textContent = '@import url("chrome://betterreader/content/controls.css");';
 	toolbar.insertBefore(style, toolbar.children[1]);
 
 	let dropdown = content.document.getElementById('style-dropdown');
@@ -274,7 +282,7 @@ function setWidth(width, setPref = true) {
 function setColourVariable(name, value, setPref = true) {
 	if (!isAboutReader()) { return; }
 	if (setPref) {
-		sendAsyncMessage('BetterReader:setPref', { key: 'css.' + name, value: value });
+		sendAsyncMessage('BetterReader:setPref', { key: 'css.' + name.replace('-', '.'), value: value });
 	} else {
 		content.document.querySelector('input[type="color"][name="' + name + '"]').value = value;
 	}

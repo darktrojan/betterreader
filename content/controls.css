@@ -12,7 +12,7 @@
 	fill: #ffffff;
 }
 #font-choice {
-	border-bottom: 1px solid var(--borders);
+	border-bottom: 1px solid var(--controls-borders);
 	padding: 0.5em;
 }
 #font-choice-select {
@@ -20,7 +20,7 @@
 	height: 30px;
 	border: medium none;
 	background-color: transparent;
-	color: var(--foreground);
+	color: var(--controls-foreground);
 	font-size: 20px;
 	line-height: 30px;
 }
@@ -30,8 +30,8 @@
 	background-color: transparent;
 	border-top: none;
 	border-right: none;
-	border-bottom: 1px solid var(--borders);
-	border-left: 1px solid var(--borders);
+	border-bottom: 1px solid var(--controls-borders);
+	border-left: 1px solid var(--controls-borders);
 }
 #container-width-buttons > button:first-child {
   border-bottom-left-radius: 3px;
@@ -49,22 +49,22 @@
 #reader-toolbar,
 #reader-toolbar button,
 .dropdown-popup {
-	background-color: var(--background);
-	border-color: var(--borders);
+	background-color: var(--controls-background);
+	border-color: var(--controls-borders);
 }
 #reader-toolbar select:hover,
 #reader-toolbar button:not(#close-button):hover {
-	background-color: var(--button-hover);
+	background-color: var(--controls-button-hover);
 }
 svg {
 	vertical-align: middle;
 }
 svg path {
-	fill: var(--foreground);
+	fill: var(--controls-foreground);
 }
 svg path.border {
-	fill: var(--borders);
+	fill: var(--controls-borders);
 }
 svg path.fill {
-	fill: var(--background);
+	fill: var(--controls-background);
 }
