@@ -1,27 +1,21 @@
-/* globals Components, Services, addEventListener, addMessageListener,
-	removeEventListener, removeMessageListener, sendAsyncMessage, content */
-const { classes: Cc, interfaces: Ci } = Components;
+/* globals Components, addEventListener, addMessageListener,
+	removeEventListener, removeMessageListener, content */
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-Components.utils.import('resource://gre/modules/Services.jsm');
+/* globals Preferences, Services, BetterReader */
+Cu.import('resource://gre/modules/Preferences.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('chrome://betterreader/content/betterreader.jsm');
 
 let strings = Services.strings.createBundle('chrome://betterreader/locale/strings.properties');
-let colourVars = new Map([
-	['content-background', '#333333'],
-	['content-foreground', '#eeeeee'],
-	['controls-background', '#fbfbfb'],
-	['controls-borders', '#b5b5b5'],
-	['controls-button-hover', '#ebebeb'],
-	['controls-foreground', '#808080']
-]);
 
 let listener = {
 	_events: [
 		'AboutReaderContentLoaded'
 	],
 	_messages: [
-		'BetterReader:disable',
-		'BetterReader:prefs'
+		'BetterReader:disable'
 	],
 	init: function() {
 		for (let e of this._events) {
@@ -51,20 +45,6 @@ let listener = {
 		case 'BetterReader:disable':
 			this.destroy();
 			break;
-		case 'BetterReader:prefs':
-			if ('font' in message.data) {
-				setFont(message.data.font, false);
-			}
-			if ('width' in message.data) {
-				setWidth(message.data.width, false);
-			}
-			for (let name of colourVars.keys()) {
-				let prefName = name.replace('-', '.');
-				if ('css.' + prefName in message.data) {
-					setColourVariable(name, message.data['css.' + prefName], false);
-				}
-			}
-			break;
 		}
 	}
 };
@@ -75,11 +55,19 @@ function loaded() {
 		return;
 	}
 
+	let varNames = [
+		'content-background', 'content-foreground', 'controls-background', 'controls-borders',
+		'controls-button-hover', 'controls-foreground'
+	];
+	let cssText = ':root {\n';
+	for (let v of varNames) {
+		cssText += '\t--' + v + ': ' + BetterReader.getColourVariable(v) + ';\n';
+	}
+	cssText += '}\n';
+
 	let style = content.document.createElement('style');
 	style.id = 'betterreader-stylesheet';
-	style.textContent = ':root {\n' +
-		[for (colour of colourVars) `\t--${colour[0]}: ${colour[1]};\n`].join('') +
-		'}\n';
+	style.textContent = cssText;
 	content.document.head.appendChild(style);
 
 	style = content.document.createElement('style');
@@ -189,13 +177,13 @@ function loaded() {
 
 	div = content.document.createElement('div');
 	div.id = 'colour-choice-buttons';
-	for (let [name, value] of colourVars) {
-		let stringName = strings.GetStringFromName('css.' + name.replace('-', '.'));
+	for (let v of varNames) {
+		let stringName = strings.GetStringFromName('css.' + v.replace('-', '.'));
 		div.appendChild(content.document.createTextNode(stringName + ' '));
 		let input = content.document.createElement('input');
 		input.type = 'color';
-		input.name = name;
-		input.value = value;
+		input.name = v;
+		input.value = BetterReader.getColourVariable(v);
 		input.onchange = function() {
 			setColourVariable(this.name, this.value);
 		}; // jshint ignore:line
@@ -211,14 +199,15 @@ function loaded() {
 	let arrowSVG = createSVG(
 		'M 16 1.0019531 L 5 12 L 16 23 L 16 21.585938 L 6.4160156 12 L 16 2.4160156 L 16 1.0019531 z'
 	);
-	arrowSVG.querySelector('path').classList.add('border');
+	arrowSVG.querySelector('path').classList.add('foreground');
 	let arrowFill = content.document.createElementNS(SVG_NS, 'path');
 	arrowFill.setAttribute('d', 'M 16,21.585938 6.4160156,12 16,2.4160156 Z');
-	arrowFill.classList.add('fill');
+	arrowFill.classList.add('background');
 	arrowSVG.appendChild(arrowFill);
 	arrow.appendChild(arrowSVG);
 
-	sendAsyncMessage('BetterReader:getPrefs');
+	setFont(Preferences.get('extensions.betterreader.font'), false);
+	setWidth(Preferences.get('extensions.betterreader.width'), false);
 }
 
 function isAboutReader() {
@@ -242,7 +231,7 @@ function createSVG(pathD, size = 24) {
 function setFont(font, setPref = true) {
 	if (!isAboutReader()) { return; }
 	if (setPref) {
-		sendAsyncMessage('BetterReader:setPref', { key: 'font', value: font });
+		BetterReader.setPref('font', font);
 	} else {
 		// try {
 		// 	let r = content.document.createRange();
@@ -278,7 +267,7 @@ function changeWidth(change) {
 function setWidth(width, setPref = true) {
 	if (!isAboutReader()) { return; }
 	if (setPref) {
-		sendAsyncMessage('BetterReader:setPref', { key: 'width', value: width });
+		BetterReader.setPref('width', width);
 	}
 	let container = content.document.getElementById('container');
 	container.style.maxWidth = width + 'em';
@@ -287,11 +276,10 @@ function setWidth(width, setPref = true) {
 function setColourVariable(name, value, setPref = true) {
 	if (!isAboutReader()) { return; }
 	if (setPref) {
-		sendAsyncMessage('BetterReader:setPref', { key: 'css.' + name.replace('-', '.'), value: value });
+		BetterReader.setColourVariable(name, value);
 	} else {
 		content.document.querySelector('input[type="color"][name="' + name + '"]').value = value;
 	}
-	colourVars.set(name, value);
 	let style = content.document.getElementById('betterreader-stylesheet');
 	style.sheet.cssRules[0].style.setProperty('--' + name, value);
 }

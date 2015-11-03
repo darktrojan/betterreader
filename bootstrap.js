@@ -1,11 +1,11 @@
 /* globals Components, APP_SHUTDOWN */
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+const { utils: Cu } = Components;
 
-/* globals XPCOMUtils, Preferences */
+/* globals XPCOMUtils, Preferences, Services */
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Preferences', 'resource://gre/modules/Preferences.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Services', 'resource://gre/modules/Services.jsm');
 
-let messageManager;
 let messageListener;
 
 /* exported install, uninstall, startup, shutdown */
@@ -24,51 +24,26 @@ function shutdown(params, reason) {
 }
 
 messageListener = {
-	_messages: [
-		'BetterReader:getPrefs',
+	_processmessages: [
 		'BetterReader:setPref'
 	],
 	init: function() {
-		messageManager = Cc['@mozilla.org/globalmessagemanager;1'].getService(Ci.nsIMessageListenerManager);
-		for (let m of this._messages) {
-			messageManager.addMessageListener(m, this);
+		for (let m of this._processmessages) {
+			Services.ppmm.addMessageListener(m, this);
 		}
-		messageManager.loadFrameScript('chrome://betterreader/content/frame.js', true);
+		Services.mm.loadFrameScript('chrome://betterreader/content/frame.js', true);
 	},
 	destroy: function() {
-		messageManager.removeDelayedFrameScript('chrome://betterreader/content/frame.js', true);
-		messageManager.broadcastAsyncMessage('BetterReader:disable');
-		for (let m of this._messages) {
-			messageManager.removeMessageListener(m, this);
+		Services.mm.removeDelayedFrameScript('chrome://betterreader/content/frame.js', true);
+		Services.mm.broadcastAsyncMessage('BetterReader:disable');
+		for (let m of this._processmessages) {
+			Services.ppmm.removeMessageListener(m, this);
 		}
 	},
 	receiveMessage: function(message) {
 		switch (message.name) {
-		case 'BetterReader:getPrefs':
-			let prefs = Object.create(null);
-			let send = false;
-			let prefNames = [
-				'css.content.background',
-				'css.content.foreground',
-				'css.controls.background',
-				'css.controls.borders',
-				'css.controls.button-hover',
-				'css.controls.foreground',
-				'font',
-				'width'
-			];
-			for (let k of prefNames) {
-				if (Preferences.has('extensions.betterreader.' + k)) {
-					send = true;
-					prefs[k] = Preferences.get('extensions.betterreader.' + k);
-				}
-			}
-			if (send) {
-				message.target.messageManager.sendAsyncMessage('BetterReader:prefs', prefs);
-			}
-			break;
 		case 'BetterReader:setPref':
-			Preferences.set('extensions.betterreader.' + message.data.key, message.data.value);
+			Preferences.set('extensions.betterreader.' + message.data.name, message.data.value);
 			break;
 		}
 	}
