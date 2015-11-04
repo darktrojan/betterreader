@@ -39,14 +39,14 @@ let BetterReader = {
 		return colourVars.get(name);
 	},
 	setColourVariable: function(name, value) {
-		name = name.replace(/^(\w+)-/, '$1.');
+		name = 'css.' + name.replace(/^(\w+)-/, '$1.');
 		this.setPref(name, value);
 	},
 	setPref: function(name, value) {
 		if (Services.appinfo.processType == Services.appinfo.PROCESS_TYPE_CONTENT) {
 			Services.cpmm.sendAsyncMessage('BetterReader:setPref', { name: name, value: value });
 		} else {
-			Preferences.set('extensions.betterreader.css.' + name, value);
+			Preferences.set('extensions.betterreader.' + name, value);
 		}
 	}
 };
