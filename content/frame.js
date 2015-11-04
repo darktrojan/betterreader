@@ -56,14 +56,15 @@ function loaded() {
 	}
 
 	let varNames = [
-		'content-background', 'content-foreground', 'controls-background', 'controls-borders',
-		'controls-button-hover', 'controls-foreground'
+		'content-background', 'content-foreground',
+		'controls-background', 'controls-foreground', 'controls-button-hover'
 	];
 	let cssText = ':root {\n';
 	for (let v of varNames) {
 		cssText += '\t--' + v + ': ' + BetterReader.getColourVariable(v) + ';\n';
 	}
 	cssText += '}\n';
+	varNames.pop(); // remove button-hover
 
 	let style = content.document.createElement('style');
 	style.id = 'betterreader-stylesheet';

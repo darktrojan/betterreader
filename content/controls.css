@@ -11,8 +11,11 @@
 #close-button:hover path {
 	fill: #ffffff;
 }
+.dropdown.open {
+	background-color: unset;
+}
 #font-choice {
-	border-bottom: 1px solid var(--controls-borders);
+	border-bottom: 1px solid var(--controls-foreground);
 	padding: 0.5em;
 }
 #font-choice-select {
@@ -30,8 +33,8 @@
 	background-color: transparent;
 	border-top: none;
 	border-right: none;
-	border-bottom: 1px solid var(--controls-borders);
-	border-left: 1px solid var(--controls-borders);
+	border-bottom: 1px solid var(--controls-foreground);
+	border-left: 1px solid var(--controls-foreground);
 }
 .narrower-button, .wider-button {
 	background-color: transparent;
@@ -49,7 +52,8 @@
 #reader-toolbar button,
 .dropdown-popup {
 	background-color: var(--controls-background);
-	border-color: var(--controls-borders);
+	border-color: var(--controls-foreground);
+	color: var(--controls-foreground);
 }
 #reader-toolbar select:hover,
 #reader-toolbar button:not(#close-button):hover {
@@ -61,12 +65,10 @@
 svg {
 	vertical-align: middle;
 }
-svg path {
+svg path,
+svg path.foreground {
 	fill: var(--controls-foreground);
 }
-svg path.border {
-	fill: var(--controls-borders);
-}
-svg path.fill {
+svg path.background {
 	fill: var(--controls-background);
 }
