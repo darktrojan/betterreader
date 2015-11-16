@@ -59,19 +59,12 @@ function loaded() {
 		'content-background', 'content-foreground',
 		'controls-background', 'controls-foreground', 'controls-button-hover'
 	];
-	let cssText = ':root {\n';
 	for (let v of varNames) {
-		cssText += '\t--' + v + ': ' + BetterReader.getColourVariable(v) + ';\n';
+		content.document.documentElement.style.setProperty('--' + v, BetterReader.getColourVariable(v));
 	}
-	cssText += '}\n';
 	varNames.pop(); // remove button-hover
 
 	let style = content.document.createElement('style');
-	style.id = 'betterreader-stylesheet';
-	style.textContent = cssText;
-	content.document.head.appendChild(style);
-
-	style = content.document.createElement('style');
 	style.setAttribute('scoped', '');
 	style.textContent = '@import url("chrome://betterreader/content/content.css");';
 	content.document.body.insertBefore(style, content.document.body.firstChild);
@@ -294,11 +287,10 @@ function setColourVariable(name, value, setPref = true) {
 	} else {
 		content.document.querySelector('input[type="color"][name="' + name + '"]').value = value;
 	}
-	let style = content.document.getElementById('betterreader-stylesheet');
-	style.sheet.cssRules[0].style.setProperty('--' + name, value);
+	content.document.documentElement.style.setProperty('--' + name, value);
 	if (name == 'controls-foreground') {
 		let [, r, g, b] = /#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(value);
-		style.sheet.cssRules[0].style.setProperty(
+		content.document.documentElement.style.setProperty(
 			'--controls-button-hover',
 			'rgba(' + parseInt(r, 16) + ', ' + parseInt(g, 16) + ', ' + parseInt(b, 16) + ', 0.25)'
 		);
