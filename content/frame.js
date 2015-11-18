@@ -56,13 +56,13 @@ function loaded() {
 	}
 
 	let varNames = [
-		'content-background', 'content-foreground',
-		'controls-background', 'controls-foreground', 'controls-button-hover'
+		'content-background', 'content-foreground', 'content-links',
+		'controls-background', 'controls-foreground', 'controls-highlight'
 	];
 	for (let v of varNames) {
 		content.document.documentElement.style.setProperty('--' + v, BetterReader.getColourVariable(v));
 	}
-	varNames.pop(); // remove button-hover
+	varNames.pop(); // remove controls-highlight
 
 	let style = content.document.createElement('style');
 	style.setAttribute('scoped', '');
@@ -291,7 +291,7 @@ function setColourVariable(name, value, setPref = true) {
 	if (name == 'controls-foreground') {
 		let [, r, g, b] = /#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(value);
 		content.document.documentElement.style.setProperty(
-			'--controls-button-hover',
+			'--controls-highlight',
 			'rgba(' + parseInt(r, 16) + ', ' + parseInt(g, 16) + ', ' + parseInt(b, 16) + ', 0.25)'
 		);
 	}

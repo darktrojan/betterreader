@@ -58,10 +58,11 @@
 }
 #reader-toolbar select:hover,
 #reader-toolbar button:not(#close-button):hover {
-	background-color: var(--controls-button-hover);
+	background-color: var(--controls-highlight);
 }
 .dropdown-popup {
 	border-bottom-width: 1px;
+	box-shadow: 0 1px 12px var(--controls-highlight);
 }
 svg {
 	vertical-align: middle;

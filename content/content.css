@@ -2,3 +2,10 @@ body {
 	background-color: var(--content-background);
 	color: var(--content-foreground);
 }
+a, a:visited, a:hover, a:active {
+	color: var(--content-links) !important;
+}
+a.domain {
+	border-bottom: none !important;
+	text-decoration: underline !important;
+}
