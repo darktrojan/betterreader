@@ -172,8 +172,12 @@ function loaded() {
 	div = content.document.createElement('div');
 	div.id = 'colour-choice-buttons';
 	for (let v of varNames) {
+		let innerDiv = content.document.createElement('div');
+		innerDiv.classList.add('colourpicker');
 		let stringName = strings.GetStringFromName('css.' + v.replace('-', '.'));
-		div.appendChild(content.document.createTextNode(stringName + ' '));
+		let label = content.document.createElement('label');
+		label.appendChild(content.document.createTextNode(stringName + ' '));
+		innerDiv.appendChild(label);
 		let input = content.document.createElement('input');
 		input.type = 'color';
 		input.name = v;
@@ -181,19 +185,29 @@ function loaded() {
 		input.onchange = function() {
 			setColourVariable(this.name, this.value);
 		}; // jshint ignore:line
-		div.appendChild(input);
-		div.appendChild(content.document.createElement('br'));
+		innerDiv.appendChild(input);
+		div.appendChild(innerDiv);
 	}
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
 
+	let innerDiv = content.document.createElement('div');
+	innerDiv.classList.add('colourpicker');
+	innerDiv.appendChild(content.document.createElement('label'));
 	button = content.document.createElement('button');
+	let icon = createSVG(
+		'm 10.5,2.1050272 1.973776,5.6783026 6.010318,0.1224812 -4.790457,3.631865 1.740804,5.754 ' +
+		'L 10.5,13.857989 l -4.9344414,3.433687 1.740804,-5.754 -4.7904561,-3.6318655 6.010317,-0.1224807 z', 21
+	);
+	icon.setAttribute('viewBox', '0 0 21 21');
+	button.appendChild(icon);
 	button.onclick = function() {
 		let values = [for (i of div.querySelectorAll('input[type="color"]')) i.value];
 		let id = BetterReader.presets.add(values);
-		div.insertBefore(makePresetRow(id, values), this.nextElementSibling);
+		div.insertBefore(makePresetRow(id, values), div.querySelector('.preset'));
 	};
-	div.appendChild(button);
+	innerDiv.appendChild(button);
+	div.appendChild(innerDiv);
 
 	BetterReader.presets.get().then(function(presets) {
 		for (let [id, p] of presets) {
@@ -317,6 +331,7 @@ function makePresetRow(id, p) {
 		return;
 	}
 	let row = content.document.createElement('div');
+	row.classList.add('preset');
 	row.dataset.id = id;
 	for (let c of p) {
 		let cell = content.document.createElement('div');
@@ -324,7 +339,15 @@ function makePresetRow(id, p) {
 		cell.style.backgroundColor = c;
 		row.appendChild(cell);
 	}
-	row.appendChild(content.document.createElement('button'));
+	let button = content.document.createElement('button');
+	let icon = createSVG(
+		'M 6.53125,5.46875 5.46875,6.53125 9.4375,10.5 5.46875,14.46875 6.53125,15.53125 10.5,11.5625 ' +
+		'l 3.96875,3.96875 1.0625,-1.0625 L 11.5625,10.5 15.53125,6.53125 14.46875,5.46875 10.5,9.4375 Z', 21
+	);
+	icon.setAttribute('viewBox', '0 0 21 21');
+	button.appendChild(icon);
+
+	row.appendChild(button);
 	row.onclick = presetOnClick;
 	return row;
 }
