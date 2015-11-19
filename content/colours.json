@@ -1,7 +1,14 @@
-[
-	["#2a211c", "#bfbfbf", "#00af0e", "#3a312c", "#44aa43"],
-	["#2a211c", "#bfbfbf", "#2f5fe0", "#3a312c", "#7290d9"],
-	["#001221", "#c8e4fd", "#0088ff", "#002240", "#0088ff"],
-	["#0c1021", "#fbde2d", "#ff6400", "#9d1e15", "#f8f8f8"],
-	["#211e1e", "#ec9e00", "#ff0000", "#bfa36d", "#353030"]
-]
+/*
+ * This file contains colour scheme presets. Each preset needs a unique
+ * identifier, so use your initials plus a number. Identifiers shouldn't be
+ * reused if a preset is removed. The order of values is:
+ *
+ * content background, foreground, links, controls background, foreground
+ */
+{
+	"gl1": ["#2a211c", "#bfbfbf", "#00af0e", "#3a312c", "#44aa43"],
+	"gl2": ["#2a211c", "#bfbfbf", "#2f5fe0", "#3a312c", "#7290d9"],
+	"gl3": ["#001221", "#c8e4fd", "#0088ff", "#002240", "#0088ff"],
+	"gl4": ["#0c1021", "#fbde2d", "#ff6400", "#9d1e15", "#f8f8f8"],
+	"gl5": ["#211e1e", "#ec9e00", "#ff0000", "#bfa36d", "#353030"]
+}

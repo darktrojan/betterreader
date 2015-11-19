@@ -52,6 +52,13 @@
 	border-bottom-right-radius: 3px;
 	padding: 0.5em;
 }
+.swatch {
+	display: inline-block;
+	width: 25px;
+	height: 25px;
+	margin: 1px;
+	border: 1px rgba(0, 0, 0, 0.5) solid;
+}
 #reader-toolbar,
 #reader-toolbar button,
 .dropdown-popup {

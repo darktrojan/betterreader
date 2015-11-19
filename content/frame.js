@@ -3,8 +3,7 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/* globals NetUtil, Preferences, Services, BetterReader */
-Cu.import('resource://gre/modules/NetUtil.jsm');
+/* globals Preferences, Services, BetterReader */
 Cu.import('resource://gre/modules/Preferences.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('chrome://betterreader/content/betterreader.jsm');
@@ -188,29 +187,17 @@ function loaded() {
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
 
-	NetUtil.asyncFetch('chrome://betterreader/content/colours.json', function(stream) {
-		let prefPresets = [];
-		if (Preferences.has('extensions.betterreader.css.presets')) {
-			try {
-				prefPresets = JSON.parse(Preferences.get('extensions.betterreader.css.presets'));
-			} catch (ex) {
-				Cu.reportError(ex);
-			}
-		}
-		let builtInPresets = JSON.parse(NetUtil.readInputStreamToString(stream, stream.available()));
-		for (let p of prefPresets.concat(builtInPresets)) {
-			let row = content.document.createElement('div');
-			for (let c of p) {
-				let cell = content.document.createElement('div');
-				cell.style.backgroundColor = c;
-				cell.style.width = cell.style.height = '25px';
-				cell.style.display = 'inline-block';
-				cell.style.margin = '1px';
-				cell.style.border = '1px rgba(0, 0, 0, 0.5) solid';
-				row.appendChild(cell);
-			}
-			row.onclick = loadPreset;
-			div.appendChild(row);
+	button = content.document.createElement('button');
+	button.onclick = function() {
+		let values = [for (i of div.querySelectorAll('input[type="color"]')) i.value];
+		let id = BetterReader.presets.add(values);
+		div.insertBefore(makePresetRow(id, values), this.nextElementSibling);
+	};
+	div.appendChild(button);
+
+	BetterReader.presets.get().then(function(presets) {
+		for (let [id, p] of presets) {
+			div.appendChild(makePresetRow(id, p));
 		}
 	});
 
@@ -325,7 +312,29 @@ function setColourVariable(name, value, setPref = true) {
 	}
 }
 
-function loadPreset() {
+function makePresetRow(id, p) {
+	if (!Array.isArray(p) || p.length != 5) {
+		return;
+	}
+	let row = content.document.createElement('div');
+	row.dataset.id = id;
+	for (let c of p) {
+		let cell = content.document.createElement('div');
+		cell.classList.add('swatch');
+		cell.style.backgroundColor = c;
+		row.appendChild(cell);
+	}
+	row.appendChild(content.document.createElement('button'));
+	row.onclick = presetOnClick;
+	return row;
+}
+
+function presetOnClick(event) {
+	if (event.originalTarget.localName == 'button') {
+		BetterReader.presets.remove(this.dataset.id);
+		content.setTimeout(() => this.remove(), 100);
+		return;
+	}
 	setColourVariable('content-background', this.children[0].style.backgroundColor);
 	setColourVariable('content-foreground', this.children[1].style.backgroundColor);
 	setColourVariable('content-links', this.children[2].style.backgroundColor);

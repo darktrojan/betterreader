@@ -4,6 +4,7 @@ body {
 }
 a, a:visited, a:hover, a:active {
 	color: var(--content-links) !important;
+	transition: color 0.4s;
 }
 a.domain {
 	border-bottom: none !important;
