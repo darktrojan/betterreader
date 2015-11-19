@@ -178,7 +178,7 @@ function loaded() {
 		let input = content.document.createElement('input');
 		input.type = 'color';
 		input.name = v;
-		input.value = BetterReader.rgbToHex(BetterReader.getColourVariable(v));
+		input.value = BetterReader.toHex(BetterReader.getColourVariable(v));
 		input.onchange = function() {
 			setColourVariable(this.name, this.value);
 		}; // jshint ignore:line
@@ -189,8 +189,16 @@ function loaded() {
 	popup.insertBefore(content.document.createElement('hr'), before);
 
 	NetUtil.asyncFetch('chrome://betterreader/content/colours.json', function(stream) {
-		let presets = JSON.parse(NetUtil.readInputStreamToString(stream, stream.available()));
-		for (let p of presets) {
+		let prefPresets = [];
+		if (Preferences.has('extensions.betterreader.css.presets')) {
+			try {
+				prefPresets = JSON.parse(Preferences.get('extensions.betterreader.css.presets'));
+			} catch (ex) {
+				Cu.reportError(ex);
+			}
+		}
+		let builtInPresets = JSON.parse(NetUtil.readInputStreamToString(stream, stream.available()));
+		for (let p of prefPresets.concat(builtInPresets)) {
 			let row = content.document.createElement('div');
 			for (let c of p) {
 				let cell = content.document.createElement('div');
@@ -302,7 +310,7 @@ function setWidth(width, setPref = true) {
 function setColourVariable(name, value, setPref = true) {
 	if (!isAboutReader()) { return; }
 
-	value = BetterReader.rgbToHex(value);
+	value = BetterReader.toHex(value);
 
 	if (setPref) {
 		BetterReader.setColourVariable(name, value);
@@ -312,16 +320,15 @@ function setColourVariable(name, value, setPref = true) {
 	if (name == 'controls-foreground') {
 		content.document.documentElement.style.setProperty(
 			'--controls-highlight',
-			BetterReader.hexToRGB(value, 0.25)
+			BetterReader.toRGB(value, 0.25)
 		);
 	}
 }
 
 function loadPreset() {
-	let preset = this;
-	setColourVariable('content-background', preset.children[0].style.backgroundColor);
-	setColourVariable('content-foreground', preset.children[1].style.backgroundColor);
-	setColourVariable('content-links', preset.children[2].style.backgroundColor);
-	setColourVariable('controls-background', preset.children[3].style.backgroundColor);
-	setColourVariable('controls-foreground', preset.children[4].style.backgroundColor);
+	setColourVariable('content-background', this.children[0].style.backgroundColor);
+	setColourVariable('content-foreground', this.children[1].style.backgroundColor);
+	setColourVariable('content-links', this.children[2].style.backgroundColor);
+	setColourVariable('controls-background', this.children[3].style.backgroundColor);
+	setColourVariable('controls-foreground', this.children[4].style.backgroundColor);
 }

@@ -31,7 +31,7 @@ let BetterReader = {
 		name = name.replace(/^(\w+)-/, '$1.');
 		if (name == 'controls.highlight') {
 			let foreground = this.getColourVariable('controls.foreground');
-			return this.hexToRGB(foreground, 0.25);
+			return this.toRGB(foreground, 0.25);
 		}
 		if (Preferences.has('extensions.betterreader.css.' + name)) {
 			return Preferences.get('extensions.betterreader.css.' + name);
@@ -49,7 +49,7 @@ let BetterReader = {
 			Preferences.set('extensions.betterreader.' + name, value);
 		}
 	},
-	hexToRGB: function(value, alpha = 255) {
+	toRGB: function(value, alpha = 255) {
 		let match = /#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(value);
 		if (match) {
 			let values = [for (v of match.slice(1)) parseInt(v, 16)];
@@ -61,7 +61,7 @@ let BetterReader = {
 		}
 		return value;
 	},
-	rgbToHex: function(value) {
+	toHex: function(value) {
 		let match = /^rgb\((\d+), *(\d+), *(\d+)(, *\d+)?\)$/.exec(value);
 		if (match) {
 			let [, r, g, b] = match;
