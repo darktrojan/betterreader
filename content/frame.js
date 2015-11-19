@@ -3,7 +3,8 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/* globals Preferences, Services, BetterReader */
+/* globals NetUtil, Preferences, Services, BetterReader */
+Cu.import('resource://gre/modules/NetUtil.jsm');
 Cu.import('resource://gre/modules/Preferences.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('chrome://betterreader/content/betterreader.jsm');
@@ -177,7 +178,7 @@ function loaded() {
 		let input = content.document.createElement('input');
 		input.type = 'color';
 		input.name = v;
-		input.value = BetterReader.getColourVariable(v);
+		input.value = BetterReader.rgbToHex(BetterReader.getColourVariable(v));
 		input.onchange = function() {
 			setColourVariable(this.name, this.value);
 		}; // jshint ignore:line
@@ -186,6 +187,24 @@ function loaded() {
 	}
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
+
+	NetUtil.asyncFetch('chrome://betterreader/content/colours.json', function(stream) {
+		let presets = JSON.parse(NetUtil.readInputStreamToString(stream, stream.available()));
+		for (let p of presets) {
+			let row = content.document.createElement('div');
+			for (let c of p) {
+				let cell = content.document.createElement('div');
+				cell.style.backgroundColor = c;
+				cell.style.width = cell.style.height = '25px';
+				cell.style.display = 'inline-block';
+				cell.style.margin = '1px';
+				cell.style.border = '1px rgba(0, 0, 0, 0.5) solid';
+				row.appendChild(cell);
+			}
+			row.onclick = loadPreset;
+			div.appendChild(row);
+		}
+	});
 
 	before.style.display = 'none';
 
@@ -282,17 +301,27 @@ function setWidth(width, setPref = true) {
 
 function setColourVariable(name, value, setPref = true) {
 	if (!isAboutReader()) { return; }
+
+	value = BetterReader.rgbToHex(value);
+
 	if (setPref) {
 		BetterReader.setColourVariable(name, value);
-	} else {
-		content.document.querySelector('input[type="color"][name="' + name + '"]').value = value;
 	}
+	content.document.querySelector('input[type="color"][name="' + name + '"]').value = value;
 	content.document.documentElement.style.setProperty('--' + name, value);
 	if (name == 'controls-foreground') {
-		let [, r, g, b] = /#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(value);
 		content.document.documentElement.style.setProperty(
 			'--controls-highlight',
-			'rgba(' + parseInt(r, 16) + ', ' + parseInt(g, 16) + ', ' + parseInt(b, 16) + ', 0.25)'
+			BetterReader.hexToRGB(value, 0.25)
 		);
 	}
+}
+
+function loadPreset() {
+	let preset = this;
+	setColourVariable('content-background', preset.children[0].style.backgroundColor);
+	setColourVariable('content-foreground', preset.children[1].style.backgroundColor);
+	setColourVariable('content-links', preset.children[2].style.backgroundColor);
+	setColourVariable('controls-background', preset.children[3].style.backgroundColor);
+	setColourVariable('controls-foreground', preset.children[4].style.backgroundColor);
 }

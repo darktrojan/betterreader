@@ -31,8 +31,7 @@ let BetterReader = {
 		name = name.replace(/^(\w+)-/, '$1.');
 		if (name == 'controls.highlight') {
 			let foreground = this.getColourVariable('controls.foreground');
-			let [, r, g, b] = /#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(foreground);
-			return 'rgba(' + parseInt(r, 16) + ', ' + parseInt(g, 16) + ', ' + parseInt(b, 16) + ', 0.25)';
+			return this.hexToRGB(foreground, 0.25);
 		}
 		if (Preferences.has('extensions.betterreader.css.' + name)) {
 			return Preferences.get('extensions.betterreader.css.' + name);
@@ -49,5 +48,28 @@ let BetterReader = {
 		} else {
 			Preferences.set('extensions.betterreader.' + name, value);
 		}
+	},
+	hexToRGB: function(value, alpha = 255) {
+		let match = /#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(value);
+		if (match) {
+			let values = [for (v of match.slice(1)) parseInt(v, 16)];
+			if (alpha != 255) {
+				values.push(alpha);
+				return 'rgba(' + values.join(', ') + ')';
+			}
+			return 'rgb(' + values.join(', ') + ')';
+		}
+		return value;
+	},
+	rgbToHex: function(value) {
+		let match = /^rgb\((\d+), *(\d+), *(\d+)(, *\d+)?\)$/.exec(value);
+		if (match) {
+			let [, r, g, b] = match;
+			return '#' +
+				(r < 16 ? '0' : '') + parseInt(r, 10).toString(16) +
+				(g < 16 ? '0' : '') + parseInt(g, 10).toString(16) +
+				(b < 16 ? '0' : '') + parseInt(b, 10).toString(16);
+		}
+		return value;
 	}
 };
