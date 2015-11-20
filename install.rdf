@@ -3,11 +3,11 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>betterreader@darktrojan.net</em:id>
-		<em:version>3</em:version>
+		<em:version>4</em:version>
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Better Reader</em:name>
-		<em:description>Improves Firefox's Reader Mode</em:description>
+		<em:description>Better Reader improves Firefox's Reader View by giving you more control over font choice, margin size, and color scheme.</em:description>
 		<em:creator>Geoff Lankow</em:creator>
 
 		<em:targetApplication>
