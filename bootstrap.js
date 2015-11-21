@@ -24,6 +24,8 @@ function shutdown(params, reason) {
 }
 
 messageListener = {
+	// Work around bug 1051238.
+	_frameScriptURL: 'chrome://betterreader/content/frame.js?' + Math.random(),
 	_processmessages: [
 		'BetterReader:setPref'
 	],
@@ -31,10 +33,10 @@ messageListener = {
 		for (let m of this._processmessages) {
 			Services.ppmm.addMessageListener(m, this);
 		}
-		Services.mm.loadFrameScript('chrome://betterreader/content/frame.js', true);
+		Services.mm.loadFrameScript(this._frameScriptURL, true);
 	},
 	destroy: function() {
-		Services.mm.removeDelayedFrameScript('chrome://betterreader/content/frame.js', true);
+		Services.mm.removeDelayedFrameScript(this._frameScriptURL, true);
 		Services.mm.broadcastAsyncMessage('BetterReader:disable');
 		for (let m of this._processmessages) {
 			Services.ppmm.removeMessageListener(m, this);
