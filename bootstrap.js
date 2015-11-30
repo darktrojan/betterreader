@@ -1,4 +1,4 @@
-/* globals Components, APP_STARTUP, APP_SHUTDOWN */
+/* globals Components, APP_SHUTDOWN */
 const { utils: Cu } = Components;
 const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
@@ -17,19 +17,7 @@ function install() {
 }
 function uninstall() {
 }
-function startup(params, reason) {
-	if (reason == APP_STARTUP) {
-		Services.obs.addObserver({
-			observe: function() {
-				Services.obs.removeObserver(this, 'browser-delayed-startup-finished');
-				realStartup();
-			}
-		}, 'browser-delayed-startup-finished', false);
-	} else {
-		realStartup();
-	}
-}
-function realStartup() {
+function startup() {
 	messageListener.init();
 	windowObserver.init();
 }
