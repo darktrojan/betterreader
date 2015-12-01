@@ -81,7 +81,7 @@ var Presets = {
 		});
 	},
 	_getOrderedMap: function() {
-		return [for (id of this._order) if (!this._hidden.includes(id)) [id, this._map.get(id)]];
+		return [for (id of this._order) if (this._hidden.indexOf(id) < 0) [id, this._map.get(id)]];
 	},
 	add: function(values) {
 		let id = '_' + this._idCounter++;

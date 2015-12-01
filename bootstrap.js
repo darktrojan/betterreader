@@ -69,7 +69,7 @@ var windowObserver = {
 	enumerate: function(callback) {
 		let windowEnum = Services.wm.getEnumerator('navigator:browser');
 		while (windowEnum.hasMoreElements()) {
-			callback.call(windowEnum.getNext());
+			callback.call(this, windowEnum.getNext());
 		}
 	},
 	observe: function(subject) {
