@@ -30,7 +30,7 @@
 	font-size: 20px;
 	line-height: 30px;
 }
-#container-width-buttons > button {
+.two-buttons > button {
 	width: 50%;
 	height: 60px;
 	background-color: transparent;
@@ -40,11 +40,11 @@
 	border-left: 1px solid var(--controls-foreground);
 	transition: border-color 0.4s;
 }
-.narrower-button, .wider-button {
+.left-button, .right-button {
 	background-color: transparent;
 	border: 0px none;
 }
-.narrower-button {
+.left-button {
 	border-left: none !important;
 }
 #colour-choice-buttons {

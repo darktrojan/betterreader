@@ -106,9 +106,6 @@ function loaded() {
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
 
-	div = content.document.createElement('div');
-	div.id = 'container-width-buttons';
-
 	let button = content.document.getElementById('close-button');
 	button.appendChild(createSVG(SVGPaths.closeButton));
 	button = dropdown.querySelector('.dropdown-toggle');
@@ -118,8 +115,35 @@ function loaded() {
 	button = content.document.getElementById('font-size-plus');
 	button.appendChild(createSVG(SVGPaths.fontSizePlus, 18));
 
+	div = content.document.createElement('div');
+	div.id = 'line-height-buttons';
+	div.className = 'two-buttons';
+
 	button = content.document.createElement('button');
-	button.className = 'narrower-button';
+	button.className = 'left-button';
+	button.appendChild(createSVG(SVGPaths.lineHeightDownButton, 32));
+	button.onclick = function() {
+		changeLineHeight(-0.1);
+	};
+	div.appendChild(button);
+
+	button = content.document.createElement('button');
+	button.className = 'right-button';
+	button.appendChild(createSVG(SVGPaths.lineHeightUpButton, 32));
+	button.onclick = function() {
+		changeLineHeight(0.1);
+	};
+	div.appendChild(button);
+
+	before = content.document.getElementById('color-scheme-buttons');
+	popup.insertBefore(div, before);
+
+	div = content.document.createElement('div');
+	div.id = 'container-width-buttons';
+	div.className = 'two-buttons';
+
+	button = content.document.createElement('button');
+	button.className = 'left-button';
 	button.appendChild(createSVG(SVGPaths.narrowerButton, 32));
 	button.onclick = function() {
 		changeWidth(-5);
@@ -127,14 +151,12 @@ function loaded() {
 	div.appendChild(button);
 
 	button = content.document.createElement('button');
-	button.className = 'wider-button';
+	button.className = 'right-button';
 	button.appendChild(createSVG(SVGPaths.widerButton, 32));
 	button.onclick = function() {
 		changeWidth(5);
 	};
 	div.appendChild(button);
-
-	before = content.document.getElementById('color-scheme-buttons');
 
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
@@ -199,6 +221,7 @@ function loaded() {
 	}
 
 	setFont(Preferences.get('extensions.betterreader.font'), false);
+	setLineHeight(Preferences.get('extensions.betterreader.lineheight') / 10, false);
 	setWidth(Preferences.get('extensions.betterreader.width'), false);
 }
 
@@ -230,6 +253,27 @@ function setFont(font, setPref = true) {
 	let container = content.document.getElementById('container');
 	container.style.fontFamily = font;
 	content.document.getElementById('font-choice-select').style.fontFamily = font;
+}
+
+function changeLineHeight(change) {
+	let container = content.document.getElementById('moz-reader-content');
+	let currentLineHeight = parseFloat(container.style.lineHeight) || 1.6;
+	let newLineHeight = currentLineHeight + change;
+
+	if (newLineHeight > 2.5 || newLineHeight < 0.8) {
+		return;
+	}
+
+	setLineHeight(newLineHeight);
+}
+
+function setLineHeight(lineHeight, setPref = true) {
+	if (!isAboutReader()) { return; }
+	if (setPref) {
+		BetterReader.setPref('lineheight', lineHeight * 10);
+	}
+	let container = content.document.getElementById('moz-reader-content');
+	container.style.lineHeight = lineHeight;
 }
 
 function changeWidth(change) {
@@ -336,6 +380,12 @@ var SVGPaths = {
 		'.592z',
 	fontSizeMinus: 'M0,13.5v-3h24v3H0z',
 	fontSizePlus: 'M24,13.5H13.5V24h-3V13.5H0v-3h10.5V0h3v10.5H24V13.5z',
+	lineHeightUpButton: 'M 0,6 V 8.3999998 H 16.8 V 6 Z m 21.228124,0 -2.770311,4.8 H 24 Z M 0,1' +
+		'0.8 v 2.4 H 16.8 V 10.8 Z M 18.457813,13.2 21.228124,18 24,13.2 Z M 0,15.6 V 18 h 16.8 ' +
+		'v -2.4 z',
+	lineHeightDownButton: 'M 0,15.6 V 18 H 16.8 V 15.6 Z M 18.457813,18 21.228124,13.2 24,18 Z M' +
+		' 0,10.8 v 2.4 h 16.8 v -2.4 z m 21.228124,0 L 18.457813,6 H 24 Z M 0,6 V 8.3999998 H 16' +
+		'.8 V 6 Z',
 	narrowerButton: 'M 9 4 L 9 11.134766 L 0 5.9375 L 0 18.0625 L 9 12.865234 L 9 20 L 11 20 L 1' +
 		'1 4 L 9 4 z M 13 4 L 13 20 L 15 20 L 15 12.865234 L 24 18.0625 L 24 5.9375 L 15 11.1347' +
 		'66 L 15 4 L 13 4 z',
