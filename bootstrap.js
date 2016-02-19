@@ -115,7 +115,7 @@ var windowObserver = {
 		let doc = event.view.document;
 		let win = doc.defaultView;
 
-		doc.getElementById('betterreader-openinreader').hidden = !win.gContextMenu.onLink;
+		doc.getElementById('betterreader-openinreader').hidden = !win.gContextMenu.onSaveableLink;
 	},
 	onMenuItemClicked: function(event) {
 		let doc = event.view.document;
@@ -124,7 +124,7 @@ var windowObserver = {
 		win.urlSecurityCheck(win.gContextMenu.linkURL, win.gContextMenu.principal);
 		win.openLinkIn(
 			'about:reader?url=' + encodeURIComponent(win.gContextMenu.linkURL),
-			'current', win.gContextMenu._openLinkInParameters()
+			event.ctrlKey ? 'tab' : 'current', win.gContextMenu._openLinkInParameters()
 		);
 	}
 };
