@@ -12,6 +12,12 @@
 #close-button:hover path {
 	fill: #ffffff;
 }
+#donate-button {
+	position: absolute;
+	bottom: 0;
+	border-top: 1px solid var(--controls-foreground);
+	border-bottom: none;
+}
 .dropdown.open {
 	background-color: unset;
 }

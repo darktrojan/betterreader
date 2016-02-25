@@ -3,12 +3,16 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/* globals Preferences, Services, BetterReader */
+/* globals Preferences, Services, XPCOMUtils, BetterReader */
 Cu.import('resource://gre/modules/Preferences.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://betterreader/content/betterreader.jsm');
 
-let strings = Services.strings.createBundle('chrome://betterreader/locale/strings.properties');
+/* globals strings */
+XPCOMUtils.defineLazyGetter(this, 'strings', function() {
+	return Services.strings.createBundle('chrome://betterreader/locale/strings.properties');
+});
 
 let listener = {
 	_events: [
@@ -220,6 +224,18 @@ function loaded() {
 		button.appendChild(createSVG(SVGPaths.pocketButton));
 	}
 
+	button = content.document.createElement('button');
+	button.id = 'donate-button';
+	button.className = 'button';
+	button.title = strings.GetStringFromName('donate.label');
+	button.appendChild(createSVG(SVGPaths.donateButton));
+	button.onclick = function() {
+		content.open('https://addons.mozilla.org/addon/better-reader/about');
+	};
+	let li = content.document.createElement('li');
+	li.appendChild(button);
+	toolbar.appendChild(li);
+
 	setFont(Preferences.get('extensions.betterreader.font'), false);
 	setLineHeight(Preferences.get('extensions.betterreader.lineheight') / 10, false);
 	setWidth(Preferences.get('extensions.betterreader.width'), false);
@@ -409,5 +425,11 @@ var SVGPaths = {
 		'547-0.528,1.415-0.51,1.939,0.04C18.231,9.136,18.213,10.011,17.667,10.539z',
 	presetRowRemove: 'M 6.53125,5.46875 5.46875,6.53125 9.4375,10.5 5.46875,14.46875 6.53125,15.' +
 		'53125 10.5,11.5625 l 3.96875,3.96875 1.0625,-1.0625 L 11.5625,10.5 15.53125,6.53125 14.' +
-		'46875,5.46875 10.5,9.4375 Z'
+		'46875,5.46875 10.5,9.4375 Z',
+	donateButton: 'm 7.0852912,1.996204 q 2.7221988,0 4.2777408,3.1514212 0.563214,1.2471115 0.5' +
+		'90034,1.9041725 h 0.04023 q 0.469344,-2.1723522 1.70305,-3.6073131 1.448263,-1.4482806 ' +
+		'3.258593,-1.4482806 2.802658,0 4.492299,3.0038057 0.429115,1.1130902 0.429115,2.0920219' +
+		' 0,3.3524534 -2.789248,6.3964924 l -7.09381,8.515291 h -0.08046 l -7.5363342,-9.2395 Q ' +
+		'2.1236476,10.01537 2.1236476,7.0920316 q 0,-2.8295506 2.6685595,-4.4923201 Q 5.9186342,' +
+		'1.996204 7.0852912,1.996204 Z'
 };
