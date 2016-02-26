@@ -9,7 +9,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Services', 'resource://gre/modules/Serv
 
 /* globals strings */
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
-	return Services.strings.createBundle('chrome://betterreader/locale/strings.properties');
+	return Services.strings.createBundle(
+		// Work around bug 918033.
+		'chrome://betterreader/locale/strings.properties?' + Math.random()
+	);
 });
 
 /* exported install, uninstall, startup, shutdown */
