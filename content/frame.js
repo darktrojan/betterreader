@@ -247,6 +247,12 @@ function loaded() {
 				faster.firstChild.setAttribute('width', '48');
 			});
 			narrateRow.appendChild(faster);
+
+			let downArrow = content.document.createElement('div');
+			downArrow.style.backgroundImage = 'url("chrome://global/skin/narrate/arrow.svg")';
+			downArrow.style.backgroundSize = '12px';
+			replaceSVG(downArrow);
+			content.document.querySelector('#voice-select > button').appendChild(downArrow);
 		}
 
 		replaceSVG('pocket-button');

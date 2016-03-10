@@ -144,3 +144,12 @@ svg path.background {
 #voice-select .current-voice {
 	color: var(--controls-foreground) !important;
 }
+.voiceselect > button.select-toggle::after {
+	display: none !important;
+}
+.voiceselect > button.select-toggle > div {
+	display: inline-block;
+	width: 1.5em;
+	height: 1.5em;
+	vertical-align: middle;
+}
