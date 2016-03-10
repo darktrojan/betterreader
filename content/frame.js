@@ -221,7 +221,8 @@ function loaded() {
 		arrow.appendChild(arrowSVG);
 	}
 
-	Services.tm.currentThread.dispatch(function() {
+	content.addEventListener('load', function load() {
+		content.removeEventListener('load', load);
 		replaceSVG('narrate-toggle');
 		replaceSVG('narrate-skip-previous');
 		let startStopButton = content.document.getElementById('narrate-start-stop');
@@ -261,7 +262,7 @@ function loaded() {
 		let li = content.document.createElement('li');
 		li.appendChild(button);
 		toolbar.appendChild(li);
-	}, Services.tm.currentThread.DISPATCH_NORMAL);
+	});
 
 	setFont(Preferences.get('extensions.betterreader.font'), false);
 	setLineHeight(Preferences.get('extensions.betterreader.lineheight') / 10, false);
@@ -284,24 +285,31 @@ function replaceSVG(button, callback) {
 	}
 
 	let cs = content.getComputedStyle(button);
+	if (!cs.backgroundImage) {
+		return;
+	}
 	let url = cs.backgroundImage.replace(/^url\(['"]/, '').replace(/['"]\)$/, '');
 	let size = parseInt(cs.backgroundSize) || 24;
 
-	NetUtil.asyncFetch(url, function(stream) {
-		let svgText = NetUtil.readInputStreamToString(stream, stream.available());
-		let svg = createSVG(svgText.split(/>\s*</).map(p => {
-			let d = /\sd="([^"]*)"/.exec(p);
-			return d && d[1];
-		}).filter(p => !!p), size);
-		svg.setAttribute('viewBox', /viewBox="([\d\.\s]*)"/.exec(svgText)[1]);
+	try {
+		NetUtil.asyncFetch(url, function(stream) {
+			let svgText = NetUtil.readInputStreamToString(stream, stream.available());
+			let svg = createSVG(svgText.split(/>\s*</).map(p => {
+				let d = /\sd="([^"]*)"/.exec(p);
+				return d && d[1];
+			}).filter(p => !!p), size);
+			svg.setAttribute('viewBox', /viewBox="([\d\.\s]*)"/.exec(svgText)[1]);
 
-		button.appendChild(svg, size);
-		button.style.backgroundImage = 'none';
+			button.appendChild(svg, size);
+			button.style.backgroundImage = 'none';
 
-		if (typeof callback == 'function') {
-			callback();
-		}
-	});
+			if (typeof callback == 'function') {
+				callback();
+			}
+		});
+	} catch (ex) {
+		Components.utils.reportError(ex);
+	}
 }
 
 function createSVG(pathD, size = 24) {
