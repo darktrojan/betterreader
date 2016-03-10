@@ -1,10 +1,6 @@
 #close-button,
-.style-button,
-#font-size-minus,
-#font-size-plus,
-.dropdown-arrow,
-#pocket-button {
-	background-image: none;
+.dropdown-arrow {
+	background-image: none !important;
 }
 #close-button:hover {
 	background-color: #d94141;
@@ -100,12 +96,15 @@
 	transition: background-color 0.4s, border-color 0.4s, color 0.4s;
 }
 #reader-toolbar select:hover,
-#reader-toolbar button:not(#close-button):hover {
-	background-color: var(--controls-highlight);
+#reader-toolbar button:not(#close-button):not(:disabled):hover {
+	background-color: var(--controls-highlight) !important;
 }
 .dropdown-popup {
 	border-bottom-width: 1px;
 	box-shadow: 0 1px 12px var(--controls-highlight);
+}
+.dropdown-popup * {
+	border-color: var(--controls-foreground) !important;
 }
 svg {
 	vertical-align: middle;
@@ -118,4 +117,30 @@ svg path.foreground {
 svg path.background {
 	fill: var(--controls-background);
 	transition: fill 0.4s;
+}
+:disabled svg path {
+	fill-opacity: 0.5;
+}
+
+#narrate-start-stop.speaking path:first-child,
+#narrate-start-stop:not(.speaking) path:last-child {
+	display: none;
+}
+#narrate-rate::before,
+#narrate-rate::after {
+	display: none;
+}
+#narrate-rate > div {
+	width: 48px;
+	text-align: center;
+}
+#narrate-rate-input::-moz-range-progress,
+#narrate-rate-input::-moz-range-thumb {
+    background-color: var(--controls-foreground) !important;
+}
+#narrate-rate-input::-moz-range-track {
+    background-color: var(--controls-highlight) !important;
+}
+#voice-select .current-voice {
+	color: var(--controls-foreground) !important;
 }
