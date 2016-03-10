@@ -211,17 +211,17 @@ function loaded() {
 
 	before.style.display = 'none';
 
-	for (let arrow of toolbar.querySelectorAll('.dropdown-arrow')) {
-		let arrowSVG = createSVG(SVGPaths.dropdownArrow);
-		arrowSVG.querySelector('path').classList.add('foreground');
-		let arrowFill = content.document.createElementNS(SVG_NS, 'path');
-		arrowFill.setAttribute('d', 'M 16,21.585938 6.4160156,12 16,2.4160156 Z');
-		arrowFill.classList.add('background');
-		arrowSVG.appendChild(arrowFill);
-		arrow.appendChild(arrowSVG);
-	}
-
 	content.addEventListener('load', function load() {
+		for (let arrow of toolbar.querySelectorAll('.dropdown-arrow')) {
+			let arrowSVG = createSVG(SVGPaths.dropdownArrow);
+			arrowSVG.querySelector('path').classList.add('foreground');
+			let arrowFill = content.document.createElementNS(SVG_NS, 'path');
+			arrowFill.setAttribute('d', 'M 16,21.585938 6.4160156,12 16,2.4160156 Z');
+			arrowFill.classList.add('background');
+			arrowSVG.appendChild(arrowFill);
+			arrow.appendChild(arrowSVG);
+		}
+
 		content.removeEventListener('load', load);
 		replaceSVG('narrate-toggle');
 		replaceSVG('narrate-skip-previous');
