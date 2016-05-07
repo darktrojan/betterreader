@@ -1,2 +1,3 @@
 content betterreader content/ contentaccessible=yes
 locale betterreader en-US locale/en-US/
+locale betterreader zh-CN locale/zh-CN/
