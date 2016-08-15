@@ -1,4 +1,4 @@
-/* globals Components, APP_STARTUP, APP_SHUTDOWN */
+/* globals Components, APP_STARTUP, APP_SHUTDOWN, ADDON_INSTALL */
 const { utils: Cu } = Components;
 const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 
@@ -7,6 +7,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Preferences', 'resource://gre/modules/Preferences.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Services', 'resource://gre/modules/Services.jsm');
 
+/* globals idleService */
+XPCOMUtils.defineLazyServiceGetter(this, 'idleService', '@mozilla.org/widget/idleservice;1', 'nsIIdleService');
+
 /* globals strings */
 XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 	return Services.strings.createBundle(
@@ -14,6 +17,9 @@ XPCOMUtils.defineLazyGetter(this, 'strings', function() {
 		'chrome://betterreader/locale/strings.properties?' + Math.random()
 	);
 });
+
+var prefs = Services.prefs.getBranch('extensions.betterreader.');
+var idleTimeout = 20;
 
 /* exported install, uninstall, startup, shutdown */
 function install() {
@@ -25,16 +31,33 @@ function startup(params, reason) {
 		Services.obs.addObserver({
 			observe: function() {
 				Services.obs.removeObserver(this, 'browser-delayed-startup-finished');
-				realStartup();
+				realStartup(params, reason);
 			}
 		}, 'browser-delayed-startup-finished', false);
 	} else {
-		realStartup();
+		realStartup(params, reason);
 	}
 }
-function realStartup() {
+function realStartup(params, reason) {
+	let defaultPrefs = Services.prefs.getDefaultBranch('extensions.betterreader.');
+	defaultPrefs.setIntPref('donationreminder', 0);
+	defaultPrefs.setCharPref('version', 0);
+
 	messageListener.init();
 	windowObserver.init();
+
+	// Truncate version numbers to floats
+	let oldVersion = parseFloat(prefs.getCharPref('version'), 10);
+	let currentVersion = parseFloat(params.version, 10);
+	if (reason != ADDON_INSTALL && Services.vc.compare(oldVersion, currentVersion) == -1) {
+		let lastReminder = prefs.getIntPref('donationreminder') * 1000;
+		let shouldRemind = Date.now() - lastReminder > 604800000;
+
+		if (shouldRemind) {
+			idleService.addIdleObserver(idleObserver, idleTimeout);
+		}
+	}
+	prefs.setCharPref('version', params.version);
 }
 function shutdown(params, reason) {
 	if (reason == APP_SHUTDOWN) {
@@ -42,6 +65,11 @@ function shutdown(params, reason) {
 	}
 	messageListener.destroy();
 	windowObserver.destroy();
+
+	try {
+		idleService.removeIdleObserver(idleObserver, idleTimeout);
+	} catch (e) { // might be already removed
+	}
 }
 
 var messageListener = {
@@ -130,5 +158,46 @@ var windowObserver = {
 			'about:reader?url=' + encodeURIComponent(win.gContextMenu.linkURL),
 			event.ctrlKey ? 'tab' : 'current', win.gContextMenu._openLinkInParameters()
 		);
+	}
+};
+
+var idleObserver = {
+	observe: function(service, state) {
+		if (state != 'idle') {
+			return;
+		}
+		idleService.removeIdleObserver(this, idleTimeout);
+
+		let version = prefs.getCharPref('version');
+		let recentWindow = Services.wm.getMostRecentWindow('navigator:browser');
+		let notificationBox = recentWindow.document.getElementById('global-notificationbox');
+		let message = strings.formatStringFromName('newversion', [parseFloat(version, 10)], 1);
+		let changeLogLabel = strings.GetStringFromName('changelog.label');
+		let changeLogAccessKey = strings.GetStringFromName('changelog.accesskey');
+		let donateLabel = strings.GetStringFromName('donate.label');
+		let donateAccessKey = strings.GetStringFromName('donate.accesskey');
+
+		notificationBox.appendNotification(
+			message, 'betterreader-donate', null,// 'chrome://betterreader/content/icon16.png',
+			notificationBox.PRIORITY_INFO_MEDIUM, [{
+				label: changeLogLabel,
+				accessKey: changeLogAccessKey,
+				callback: function() {
+					recentWindow.switchToTabHavingURI(
+						'https://addons.mozilla.org/addon/better-reader/versions/' + version, true
+					);
+				}
+			}, {
+				label: donateLabel,
+				accessKey: donateAccessKey,
+				callback: function() {
+					recentWindow.switchToTabHavingURI(
+						'https://darktrojan.github.io/donate.html?betterreader', true
+					);
+				}
+			}]
+		);
+
+		prefs.setIntPref('donationreminder', Date.now() / 1000);
 	}
 };

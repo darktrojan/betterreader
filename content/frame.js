@@ -278,7 +278,7 @@ function loaded() {
 		button = content.document.createElement('button');
 		button.id = 'donate-button';
 		button.className = 'button';
-		button.title = strings.GetStringFromName('donate.label');
+		button.title = strings.GetStringFromName('donate.tooltip');
 		button.appendChild(createSVG(SVGPaths.donateButton));
 		button.onclick = function() {
 			content.open('https://darktrojan.github.io/donate.html?betterreader');
