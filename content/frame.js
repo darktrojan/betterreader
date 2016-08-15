@@ -37,7 +37,7 @@ let listener = {
 			addMessageListener(m, this);
 		}
 	},
-	destroy: function() {
+	disable: function() {
 		for (let e of this._events) {
 			removeEventListener(e, this, false, true);
 		}
@@ -58,7 +58,7 @@ let listener = {
 			this.enable();
 			break;
 		case 'BetterReader:disable':
-			this.destroy();
+			this.disable();
 			break;
 		}
 	}
