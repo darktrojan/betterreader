@@ -120,51 +120,62 @@ function loaded() {
 	replaceSVG('font-size-minus');
 	replaceSVG('font-size-plus');
 
-	div = content.document.createElement('div');
-	div.id = 'line-height-buttons';
-	div.className = 'two-buttons';
-
-	button = content.document.createElement('button');
-	button.className = 'left-button';
-	button.appendChild(createSVG(SVGPaths.lineHeightDownButton, 32));
-	button.onclick = function() {
-		changeLineHeight(-0.1);
-	};
-	div.appendChild(button);
-
-	button = content.document.createElement('button');
-	button.className = 'right-button';
-	button.appendChild(createSVG(SVGPaths.lineHeightUpButton, 32));
-	button.onclick = function() {
-		changeLineHeight(0.1);
-	};
-	div.appendChild(button);
-
 	before = content.document.getElementById('color-scheme-buttons');
-	popup.insertBefore(div, before);
 
-	div = content.document.createElement('div');
-	div.id = 'container-width-buttons';
-	div.className = 'two-buttons';
+	let hasNewButtons = !!content.document.getElementById('content-width-minus');
 
-	button = content.document.createElement('button');
-	button.className = 'left-button';
-	button.appendChild(createSVG(SVGPaths.narrowerButton, 32));
-	button.onclick = function() {
-		changeWidth(-5);
-	};
-	div.appendChild(button);
+	if (hasNewButtons) {
+		replaceSVG('content-width-minus');
+		replaceSVG('content-width-plus');
 
-	button = content.document.createElement('button');
-	button.className = 'right-button';
-	button.appendChild(createSVG(SVGPaths.widerButton, 32));
-	button.onclick = function() {
-		changeWidth(5);
-	};
-	div.appendChild(button);
+		replaceSVG('line-height-minus');
+		replaceSVG('line-height-plus');
+	} else {
+		div = content.document.createElement('div');
+		div.id = 'line-height-buttons';
+		div.className = 'two-buttons';
 
-	popup.insertBefore(div, before);
-	popup.insertBefore(content.document.createElement('hr'), before);
+		button = content.document.createElement('button');
+		button.className = 'left-button';
+		button.appendChild(createSVG(SVGPaths.lineHeightDownButton, 32));
+		button.onclick = function() {
+			changeLineHeight(-0.1);
+		};
+		div.appendChild(button);
+
+		button = content.document.createElement('button');
+		button.className = 'right-button';
+		button.appendChild(createSVG(SVGPaths.lineHeightUpButton, 32));
+		button.onclick = function() {
+			changeLineHeight(0.1);
+		};
+		div.appendChild(button);
+
+		popup.insertBefore(div, before);
+
+		div = content.document.createElement('div');
+		div.id = 'container-width-buttons';
+		div.className = 'two-buttons';
+
+		button = content.document.createElement('button');
+		button.className = 'left-button';
+		button.appendChild(createSVG(SVGPaths.narrowerButton, 32));
+		button.onclick = function() {
+			changeWidth(-5);
+		};
+		div.appendChild(button);
+
+		button = content.document.createElement('button');
+		button.className = 'right-button';
+		button.appendChild(createSVG(SVGPaths.widerButton, 32));
+		button.onclick = function() {
+			changeWidth(5);
+		};
+		div.appendChild(button);
+
+		popup.insertBefore(div, before);
+		popup.insertBefore(content.document.createElement('hr'), before);
+	}
 
 	div = content.document.createElement('div');
 	div.id = 'colour-choice-buttons';
@@ -263,7 +274,7 @@ function loaded() {
 		button.title = strings.GetStringFromName('donate.label');
 		button.appendChild(createSVG(SVGPaths.donateButton));
 		button.onclick = function() {
-			content.open('https://addons.mozilla.org/addon/better-reader/about');
+			content.open('https://darktrojan.github.io/donate.html?betterreader');
 		};
 		let li = content.document.createElement('li');
 		li.appendChild(button);
@@ -271,8 +282,10 @@ function loaded() {
 	});
 
 	setFont(Preferences.get('extensions.betterreader.font'), false);
-	setLineHeight(Preferences.get('extensions.betterreader.lineheight') / 10, false);
-	setWidth(Preferences.get('extensions.betterreader.width'), false);
+	if (!hasNewButtons) {
+		setLineHeight(Preferences.get('extensions.betterreader.lineheight') / 10, false);
+		setWidth(Preferences.get('extensions.betterreader.width'), false);
+	}
 }
 
 function isAboutReader() {
@@ -300,11 +313,28 @@ function replaceSVG(button, callback) {
 	try {
 		NetUtil.asyncFetch(url, function(stream) {
 			let svgText = NetUtil.readInputStreamToString(stream, stream.available());
-			let svg = createSVG(svgText.split(/>\s*</).map(p => {
-				let d = /\sd="([^"]*)"/.exec(p);
-				return d && d[1];
-			}).filter(p => !!p), size);
+			let svg = createSVG([], size);
 			svg.setAttribute('viewBox', /viewBox="([\d\.\s]*)"/.exec(svgText)[1]);
+
+			for (let e of ['path', 'rect']) {
+				let start = svgText.indexOf('<' + e + ' ');
+				while (start > 0) {
+					let end = svgText.indexOf('/>', start);
+					if (end < 0) {
+						break;
+					}
+					let elementText = svgText.substring(start, end);
+					let element = content.document.createElementNS(SVG_NS, e);
+					for (let n of ['d', 'transform', 'x', 'y', 'width', 'height']) {
+						let v = new RegExp('\\s' + n + '="([^"]*)"').exec(elementText);
+						if (v && v[1]) {
+							element.setAttribute(n, v[1]);
+						}
+					}
+					svg.appendChild(element);
+					start = svgText.indexOf('<' + e + ' ', end);
+				}
+			}
 
 			button.appendChild(svg, size);
 			button.style.backgroundImage = 'none';

@@ -109,6 +109,7 @@
 svg {
 	vertical-align: middle;
 }
+svg rect,
 svg path,
 svg path.foreground {
 	fill: var(--controls-foreground);
