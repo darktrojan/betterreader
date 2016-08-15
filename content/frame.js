@@ -23,9 +23,13 @@ let listener = {
 		'AboutReaderContentLoaded'
 	],
 	_messages: [
+		'BetterReader:enable',
 		'BetterReader:disable'
 	],
 	init: function() {
+		addMessageListener('BetterReader:enable', this);
+	},
+	enable: function() {
 		for (let e of this._events) {
 			addEventListener(e, this, false, true);
 		}
@@ -50,6 +54,9 @@ let listener = {
 	},
 	receiveMessage: function(message) {
 		switch (message.name) {
+		case 'BetterReader:enable':
+			this.enable();
+			break;
 		case 'BetterReader:disable':
 			this.destroy();
 			break;

@@ -55,6 +55,7 @@ var messageListener = {
 			Services.ppmm.addMessageListener(m, this);
 		}
 		Services.mm.loadFrameScript(this._frameScriptURL, true);
+		Services.mm.broadcastAsyncMessage('BetterReader:enable');
 	},
 	destroy: function() {
 		Services.mm.removeDelayedFrameScript(this._frameScriptURL, true);
