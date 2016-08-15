@@ -27,8 +27,11 @@ let listener = {
 		'BetterReader:disable'
 	],
 	init: function() {
-		addMessageListener('BetterReader:enable', this);
+		this.enable();
 	},
+	// BetterReader:enable is broadcast to all frames at startup, to counteract any broadcasts
+	// of BetterReader:disable from the shutdown of a previous version. This function might run
+	// twice in a row, so we need to make sure any effects aren't doubled.
 	enable: function() {
 		for (let e of this._events) {
 			addEventListener(e, this, false, true);

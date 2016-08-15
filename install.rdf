@@ -3,7 +3,7 @@
 
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>betterreader@darktrojan.net</em:id>
-		<em:version>8.2</em:version>
+		<em:version>8.3</em:version>
 		<em:type>2</em:type>
 		<em:bootstrap>true</em:bootstrap>
 		<em:name>Better Reader</em:name>
