@@ -50,6 +50,7 @@
 	border-left: none !important;
 }
 #colour-choice-buttons {
+	position: relative;
 	border-bottom-left-radius: 3px;
 	border-bottom-right-radius: 3px;
 	padding: 0.5em 2.5em;
@@ -87,6 +88,30 @@
 	padding: 2px 0px;
 	vertical-align: middle;
 }
+#colour-choice-buttons > .expander {
+	position: absolute;
+	bottom: 2px;
+	right: 2px;
+	background-color: transparent;
+	transform: rotate(180deg);
+	transition: transform 250ms 125ms;
+}
+#colour-choice-buttons.collapsed {
+	text-align: center;
+}
+#colour-choice-buttons.collapsed > .colourpicker {
+	display: inline-block;
+	margin: 2px 4px;
+}
+#colour-choice-buttons.collapsed > .colourpicker > label,
+#colour-choice-buttons.collapsed > .colourpicker:nth-child(6),
+#colour-choice-buttons.collapsed > .preset {
+	display: none;
+}
+#colour-choice-buttons.collapsed > .expander {
+	transform: none;
+}
+
 #reader-toolbar,
 #reader-toolbar button,
 .dropdown-popup {

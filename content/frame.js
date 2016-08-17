@@ -189,10 +189,13 @@ function loaded() {
 
 	div = content.document.createElement('div');
 	div.id = 'colour-choice-buttons';
+	div.classList.add('collapsed');
+	let innerDiv;
 	for (let v of varNames) {
-		let innerDiv = content.document.createElement('div');
+		innerDiv = content.document.createElement('div');
 		innerDiv.classList.add('colourpicker');
 		let stringName = strings.GetStringFromName('css.' + v.replace('-', '.'));
+		innerDiv.title = stringName;
 		let label = content.document.createElement('label');
 		label.appendChild(content.document.createTextNode(stringName + ' '));
 		innerDiv.appendChild(label);
@@ -209,13 +212,11 @@ function loaded() {
 	popup.insertBefore(div, before);
 	popup.insertBefore(content.document.createElement('hr'), before);
 
-	let innerDiv = content.document.createElement('div');
+	innerDiv = content.document.createElement('div');
 	innerDiv.classList.add('colourpicker');
 	innerDiv.appendChild(content.document.createElement('label'));
 	button = content.document.createElement('button');
-	let icon = createSVG(SVGPaths.presetSave, 21);
-	icon.setAttribute('viewBox', '0 0 21 21');
-	button.appendChild(icon);
+	button.appendChild(createSVG(SVGPaths.presetSave, 21, '0 0 21 21'));
 	button.onclick = function() {
 		let values = [for (i of div.querySelectorAll('input[type="color"]')) i.value];
 		let id = BetterReader.presets.add(values);
@@ -228,6 +229,14 @@ function loaded() {
 		for (let [id, p] of presets) {
 			div.appendChild(makePresetRow(id, p));
 		}
+
+		button = content.document.createElement('button');
+		button.classList.add('expander');
+		button.appendChild(createSVG('M6 9L1 4l1-1 4 4 4-4 1 1z', 18, '0 0 12 12'));
+		button.onclick = function() {
+			content.document.getElementById('colour-choice-buttons').classList.toggle('collapsed');
+		};
+		div.appendChild(button);
 	});
 
 	before.style.display = 'none';
@@ -323,8 +332,7 @@ function replaceSVG(button, callback) {
 	try {
 		NetUtil.asyncFetch(url, function(stream) {
 			let svgText = NetUtil.readInputStreamToString(stream, stream.available());
-			let svg = createSVG([], size);
-			svg.setAttribute('viewBox', /viewBox="([\d\.\s]*)"/.exec(svgText)[1]);
+			let svg = createSVG([], size, /viewBox="([\d\.\s]*)"/.exec(svgText)[1]);
 
 			for (let e of ['path', 'rect']) {
 				let start = svgText.indexOf('<' + e + ' ');
@@ -358,9 +366,9 @@ function replaceSVG(button, callback) {
 	}
 }
 
-function createSVG(pathD, size = 24) {
+function createSVG(pathD, size = 24, viewBox = '0 0 24 24') {
 	let svg = content.document.createElementNS(SVG_NS, 'svg');
-	svg.setAttribute('viewBox', '0 0 24 24');
+	svg.setAttribute('viewBox', viewBox);
 	svg.setAttribute('width', size);
 	svg.setAttribute('height', size);
 	if (!Array.isArray(pathD)) {
@@ -462,9 +470,7 @@ function makePresetRow(id, p) {
 		row.appendChild(cell);
 	}
 	let button = content.document.createElement('button');
-	let icon = createSVG(SVGPaths.presetRowRemove, 21);
-	icon.setAttribute('viewBox', '0 0 21 21');
-	button.appendChild(icon);
+	button.appendChild(createSVG(SVGPaths.presetRowRemove, 21, '0 0 21 21'));
 
 	row.appendChild(button);
 	row.onclick = presetOnClick;
